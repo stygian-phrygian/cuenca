@@ -8,5 +8,8 @@
     "start": "node server.js"
   },
   "author": "me",
-  "license": "GPL-3.0"
+  "license": "GPL-3.0",
+  "dependencies": {
+    "websocket": "^1.0.23"
+  }
 }
