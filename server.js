@@ -30,6 +30,9 @@ webSocketServer.on('request', function(request) {
         if (message.type === 'utf8') {
             console.log("received:", message.utf8Data);
             var command = "xdotool " + message.utf8Data;
+
+            // make keystrokes work with xdotool
+            command = command.replace("Arrow", "");
             console.log("executing:", command);
             //exec(command);
         }

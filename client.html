@@ -27,14 +27,15 @@ window.onkeydown = function (e) {
     // send the recent keyboard press
     else {
         var c = "";
+	// append alt, ctrl, & shift keys
         if(e.altKey) { c += "alt+"; }
         if(e.ctrlKey) { c += "ctrl+"; }
         if(e.shiftKey) {
-            // append 'Shift-'
-            // unless shift *and* a letter was pressed
+            // append 'shift-' unless shift *and* a letter was pressed
             // (ie. we received a capital letter)
             if(e.keyCode < 65 && 90 > e.keyCode) { c += "shift+";}
         }
+	
         c += e.key;
         clientSocket.send(c);
         console.log(c);
