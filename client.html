@@ -1,0 +1,71 @@
+<html>
+<body>
+
+<script type="text/javascript">
+
+var PORT 		       = 1234;
+var DELAY_BETWEEN_RECENT_INPUT = 450; // ms
+
+// create client WebSocket
+var clientSocket = new WebSocket("ws://192.168.56.1:" + PORT);
+
+clientSocket.onopen = function (event) {
+    clientSocket.send("opened client WebSocket");
+}
+
+// handle text input events
+window.onkeydown = function (e) {
+    // override default browser keyboard functionality
+    if(e.preventDefault) { e.preventDefault(); }
+    // ...handle stupid ie
+    else { e.retureValue = false; }
+
+    // don't send isolated shift, ctrl, alt key presses
+    if(16 <= e.keyCode && e.keyCode <= 18) {
+        console.log("received: " + e.key + " but *not* sending it over WebSocket");
+    }
+    // send the recent keyboard press
+    else {
+        var c = "";
+        if(e.altKey) { c += "Alt-"; }
+        if(e.ctrlKey) { c += "Ctrl-"; }
+        if(e.shiftKey) {
+            // append 'Shift-'
+            // unless shift *and* a letter was pressed
+            // (ie. we received a capital letter)
+            if(e.keyCode < 65 && 90 > e.keyCode) { c += "Shift-";}
+        }
+        c += e.key;
+        clientSocket.send(c);
+        console.log(c);
+    }
+}
+
+// I needed a way to determine when text input events had *stopped* ocurring
+// so our server parser can work on the recent WebSocket chunk of input data.
+// solution found here:
+// http://stackoverflow.com/questions/1909441/jquery-keyup-delay
+
+// Basically, each time a keyUp event happens, a timeout callback is appended
+// which *clears* the previous timeout callback.  Thus, the last keyUp event
+// will successfuly timeout only *once*
+// ...bit of a hack.... I know
+
+var checkFinishedRecentInput = (function(){
+    var timer = undefined;
+    return function(callback, ms){
+        clearTimeout (timer);
+        timer = setTimeout(callback, ms);
+  };
+})();
+
+window.onkeyup = function() {
+    checkFinishedRecentInput(function(){
+        clientSocket.send("__DONE__");
+        console.log("__DONE__");
+    }, DELAY_BETWEEN_RECENT_INPUT);
+};
+
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "cuenca",
+  "version": "1.0.0",
+  "description": "send keystrokes (presumably produced by voice recognition) through a web page websocket",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "me",
+  "license": "GPL-3.0"
+}
