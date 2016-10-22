@@ -1,4 +1,5 @@
-	
+
+var exec = require('child_process').exec;	
 var http = require('http');
 var WebSocketServer = require('websocket').server;
 
@@ -12,11 +13,14 @@ var server = http.createServer(function(request, response) {
 server.listen(PORT, function() {
     console.log("listening on port:",PORT);
 });
+server.on('connection', function() {
+    console.log("opened client connection");
+});
+// server.maxConnection = 1; // <--- should we limit connections?
 
 // create the websocket server (from the normal http server)
 webSocketServer = new WebSocketServer({httpServer: server});
 
-// WebSocket server
 webSocketServer.on('request', function(request) {
     var connection = request.accept(null, request.origin);
 
@@ -24,23 +28,16 @@ webSocketServer.on('request', function(request) {
     // all messages from users here.
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
-	    // TODO send this shit to xdotool
-            console.log(message.utf8Data);
+            console.log("received:", message.utf8Data);
+            var command = "xdotool " + message.utf8Data;
+            console.log("executing:", command);
+            //exec(command);
         }
     });
 
     connection.on('close', function(connection) {
         // close user connection
     });
-
-    /*
-     * this breaks everything... iunno?
-    connection.socket.setTimeout(3000);
-    connection.socket.on('timeout', function () {
-        console.log("TIMEOUT WAS EMITTED!"); 
-    });
-    */
-    
 });
 
 
