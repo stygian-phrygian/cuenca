@@ -1,14 +1,12 @@
 #Cuenca
 
+Transmit voice recognized simulated keystrokes from a guest to host OS via browser WebSockets.
 
-Transmit keystrokes from a guest to host OS via your browser.
-
-*this is a hack*
+*this is a filthy hack*
 
 ##Installation
 
 *On the host:*
-
 
     npm install
     npm start    #listens on 192.168.56.1:1234 by default
@@ -17,7 +15,10 @@ Transmit keystrokes from a guest to host OS via your browser.
 
     Configure your guest OS to have a named host network adaptor.
 
-    Open client.html in your guest OS browser.
+    Open client.html in your guest OS browser then switch focus outside the VM.
 
+##Usage
 
-When the client.html ***has focus*** keystrokes are streamed into server.js and passed into xdotool.
+Set window focus to client.html in your guest OS ***then*** switch focus out of your VM into host OS applications.
+
+*Nota Bene* Infinite "key press" loops will occur if you maintain focus on client.html while server.js is running because xdotool emits *global* key presses.
