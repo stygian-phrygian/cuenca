@@ -34,7 +34,7 @@ webSocketServer.on('request', function(request) {
             // make keystrokes work with xdotool
             command = command.replace("Arrow", "");
             console.log("executing:", command);
-            //exec(command);
+            exec(command);
         }
     });
 
