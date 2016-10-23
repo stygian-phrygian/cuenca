@@ -6,14 +6,14 @@
 var PORT 		       = 1234;
 var DELAY_BETWEEN_RECENT_INPUT = 450; // ms
 
-// create client WebSocket
+// create a client WebSocket
 var clientSocket = new WebSocket("ws://192.168.56.1:" + PORT);
 
 clientSocket.onopen = function (event) {
-    console.log("opened client WebSocket");
+    console.log("Opened client WebSocket");
 }
 
-// handle text input events
+// handle browser text input events
 window.onkeydown = function (e) {
     // override default browser keyboard functionality
     if(e.preventDefault) { e.preventDefault(); }
@@ -24,7 +24,7 @@ window.onkeydown = function (e) {
     if(16 <= e.keyCode && e.keyCode <= 18) {
         console.log("received: " + e.key + " but *not* sending it over WebSocket");
     }
-    // send the recent keyboard press
+    // send the recent keyboard press (with modifier keys attached)
     else {
         var c = "";
 	// append alt, ctrl, & shift keys
@@ -37,35 +37,36 @@ window.onkeydown = function (e) {
         }
 	
         c += e.key;
+	// send the key over the WebSocket
         clientSocket.send(c);
+	// log it to the browser's console
         console.log(c);
     }
 }
 
-// I needed a way to determine when text input events had *stopped* ocurring
-// so our server parser can work on the recent WebSocket chunk of input data.
+// The following is a method to determine when text input events have *stopped* ocurring
 // solution found here:
 // http://stackoverflow.com/questions/1909441/jquery-keyup-delay
 
-// Basically, each time a keyUp event happens, a timeout callback is appended
+// Each time a keyUp event happens, a timeout callback is appended
 // which *clears* the previous timeout callback.  Thus, the last keyUp event
 // will successfuly timeout only *once*
-// ...bit of a hack.... I know
+// ... it's a hack.... I know
 
-//var checkFinishedRecentInput = (function(){
-//    var timer = undefined;
-//    return function(callback, ms){
-//        clearTimeout (timer);
-//        timer = setTimeout(callback, ms);
-//  };
-//})();
-//
-//window.onkeyup = function() {
-//    checkFinishedRecentInput(function(){
-//        clientSocket.send("__DONE__");
-//        console.log("__DONE__");
-//    }, DELAY_BETWEEN_RECENT_INPUT);
-//};
+var checkFinishedRecentInput = (function(){
+    var timer = undefined;
+    return function(callback, ms){
+        clearTimeout (timer);
+        timer = setTimeout(callback, ms);
+  };
+})();
+
+window.onkeyup = function() {
+    checkFinishedRecentInput(function(){
+        clientSocket.send("\x17");
+        console.log("End of Transmission Block");
+    }, DELAY_BETWEEN_RECENT_INPUT);
+};
 
 </script>
 </body>
