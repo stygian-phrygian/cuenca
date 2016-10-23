@@ -15,7 +15,7 @@ Transmit voice recognized simulated keystrokes from a guest to host OS via brows
 
     Configure your guest OS to have a named host network adaptor.
 
-    Open client.html in your guest OS browser then switch focus outside the VM.
+    Download client.html to your guest OS.  
 
 ##Usage
 
