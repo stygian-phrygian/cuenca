@@ -19,6 +19,4 @@ Transmit voice recognized simulated keystrokes from a guest to host OS via brows
 
 ##Usage
 
-Set window focus to client.html in your guest OS ***then*** switch focus out of your VM into host OS applications.
-
-*Nota Bene* Infinite "key press" loops will occur if you maintain focus on client.html while server.js is running because xdotool emits *global* key presses.
+Open client.html in your guest OS ***then*** switch focus out of your VM into host OS applications.
