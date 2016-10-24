@@ -14,7 +14,7 @@ var KEY_TO_XKEY = {
     "ArrowDown"  : "Down",
     "ArrowLeft"  : "Left",
     "ArrowRight" : "Right",
-    "Enter": "KP_Return",
+    "Enter": "KP_Enter",
     '"': "quotedbl",
     "'": "apostrophe",
     "`": "grave",
