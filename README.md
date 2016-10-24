@@ -2,7 +2,7 @@
 
 Transmit voice recognized simulated keystrokes from a guest to host OS via browser WebSockets.
 
-*this is a filthy hack*
+warning: *this is a hack*
 
 ##Installation
 
