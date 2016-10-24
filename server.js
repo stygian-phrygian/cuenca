@@ -1,14 +1,136 @@
-var spawn           = require('child_process').spawn;	
+var exec            = require('child_process').exec;	
 var http            = require('http');
 var WebSocketServer = require('websocket').server;
 
 var PORT                      = 1234
 var END_OF_TRANSMISSION_BLOCK = "\x17";
 
-// spawn an initial 'xdotool' process
-xdotool = spawn("xdotool", ["-"]);
-xdotool.stdin.on('error', function (error) { console.log("ERROR:\n\n", error);               });
-xdotool.stdin.on('exit' , function (code)  { console.log("xdotool exited with code:", code); });
+// dictionary to translate 
+// WebSocket broswer keystroke data
+// into X-Windows keys (for use in xdotool)
+var KEY_TO_XKEY = {
+
+    "ArrowUp"    : "Up",
+    "ArrowDown"  : "Down",
+    "ArrowLeft"  : "Left",
+    "ArrowRight" : "Right",
+    "Enter": "KP_Return",
+    '"': "quotedbl",
+    "'": "apostrophe",
+    "`": "grave",
+    "^": "asciicircum",
+    "|": "bar",
+    " ": "space",
+    ":": "comma",
+    ";": "semicolon",
+    ":": "colon",
+    "{": "braceleft",
+    "}": "braceright",
+    "[": "bracketleft",
+    "]": "bracketright",
+    "(": "parenleft",
+    ")": "parenright",
+    "<": "less",
+    ">": "greater",
+    "/": "slash",
+    "\\": "backslash",
+    "&": "ampersand",
+    "+": "plus",
+    "-": "minus",
+    "+": "equal",
+    "_": "underscore",
+    "*": "asterisk",
+    ".": "period",
+    "~": "asciitilde",
+    "@": "at",
+    "!": "exclam",
+    "#": "numbersign",
+    "%": "percent",
+    "PageUp"     : "KP_Page_Up",
+    "PageDown"   : "KP_Page_Down",
+    "Home"       : "KP_Home",
+    "End"        : "KP_End",
+    "Backspace"  : "BackSpace",
+    "Delete"     : "Delete",
+    "NumLock"    : "Num_Lock",
+    'A': 'A',
+    'B': 'B',
+    'C': 'C',
+    'D': 'D',
+    'E': 'E',
+    'F': 'F',
+    'G': 'G',
+    'H': 'H',
+    'I': 'I',
+    'J': 'J',
+    'K': 'K',
+    'L': 'L',
+    'M': 'M',
+    'N': 'N',
+    'O': 'O',
+    'P': 'P',
+    'Q': 'Q',
+    'R': 'R',
+    'S': 'S',
+    'T': 'T',
+    'U': 'U',
+    'V': 'V',
+    'W': 'W',
+    'X': 'X',
+    'Y': 'Y',
+    'Z': 'Z',
+    'a': 'a',
+    'b': 'b',
+    'c': 'c',
+    'd': 'd',
+    'e': 'e',
+    'f': 'f',
+    'g': 'g',
+    'h': 'h',
+    'i': 'i',
+    'j': 'j',
+    'k': 'k',
+    'l': 'l',
+    'm': 'm',
+    'n': 'n',
+    'o': 'o',
+    'p': 'p',
+    'q': 'q',
+    'r': 'r',
+    's': 's',
+    't': 't',
+    'u': 'u',
+    'v': 'v',
+    'w': 'w',
+    'x': 'x',
+    'y': 'y',
+    'z': 'z',
+
+}
+
+function hasModifierKeys(keyStroke) {
+    return  keyStroke.includes("alt")   ||
+            keyStroke.includes("ctrl")  ||
+            keyStroke.includes("shift") ||
+            keyStroke.includes("meta")  ||
+            keyStroke.includes("super");
+}
+function translateToXKeys(keyStroke) {
+    if(hasModifierKeys(keyStroke)) {
+        return keyStroke;
+    }
+    else {
+        return KEY_TO_XKEY[keyStroke];
+    }
+}
+
+// could use another xdotool process to watch which window we are in
+// and *not* fire keys if we are in the wrong one
+
+// xdotool getactivewindow getwindowname # returns active window name
+// xdotool search --name Running 
+// will find a running VM
+// so we can avoid keypress infinite loops
 
 // create an http server
 var server = http.createServer(function(request, response) {
@@ -27,6 +149,8 @@ webSocketServer.on('request', function(request) {
     // create a connection
     var connection = request.accept(null, request.origin);
 
+    recentInput = [];
+
     // register a callback when messages are received over the WebSocket connection
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
@@ -36,25 +160,23 @@ webSocketServer.on('request', function(request) {
             var receivedData = message.utf8Data;
 
             // if end of transmission block is received
-            // end the spawned process (whereby flushing node's buffered input and executing it finally)
+            // exec xdotool with recent input
             if(receivedData === END_OF_TRANSMISSION_BLOCK) {
-                xdotool.stdin.end();
-                // spawn another process for future use
-                xdotool = spawn("xdotool", ["-"]);
-                xdotool.stdin.on('error', function (error) { console.log("ERROR:\n\n", error);               });
-                xdotool.stdin.on('exit' , function (code)  { console.log("xdotool exited with code:", code); });
+                // exec xdotool with recent input buffer
+                command = "xdotool key " + recentInput.join(" ");
+                console.log("executing:", command);
+                xdotool = exec(command, function (error, stdin, stdout) {
+                    // check for error
+                    if(error) { console.log("ERROR:\n\n", error);  return };
+                });
+
+                // clear recent input buffer
+                recentInput.length = 0;
             }
-            // else write to the spawned process stdin
+            // else push received data into recent input buffer (to use in one exec process)
             else {
-                // make the data work with xdotool
-                // data received from the WebSocket is not necessarily formatted correctly for xdotool
-                receivedData = receivedData.replace("Arrow", "");
-                receivedData = receivedData.replace("Enter", "KP_Return");
-                receivedData = receivedData.replace(" ", "space");
-        
-                // write it into xdotool's stdin
-                // NB. this will not trigger execution unless node's buffer is full
-                xdotool.stdin.write("key " + receivedData + "\n", 'utf-8');
+                // save (translated) received data to recent input buffer
+                recentInput.push(translateToXKeys(receivedData));
             }
 
         }
@@ -63,5 +185,7 @@ webSocketServer.on('request', function(request) {
     // register a callback to prompt when a WebSocket connection is closed
     connection.on('close', function(connection) { console.log("Connection closed"); });
 });
+
+
 
 
