@@ -1,4 +1,4 @@
-var exec            = require('child_process').exec;	
+var execFile        = require('child_process').execFile;	
 var http            = require('http');
 var WebSocketServer = require('websocket').server;
 
@@ -125,7 +125,7 @@ function translateToXKeys(keyStroke) {
 }
 
 // could use another xdotool process to watch which window we are in
-// and *not* fire keys if we are in the wrong one
+// and *not* fire keys if we are in the wrong one (class is "VirtualBox")
 
 // xdotool getactivewindow getwindowname # returns active window name
 // xdotool search --name Running 
@@ -162,14 +162,13 @@ webSocketServer.on('request', function(request) {
             // if end of transmission block is received
             // exec xdotool with recent input
             if(receivedData === END_OF_TRANSMISSION_BLOCK) {
-                // exec xdotool with recent input buffer
-                command = "xdotool key " + recentInput.join(" ");
-                console.log("executing:", command);
-                xdotool = exec(command, function (error, stdin, stdout) {
+                // exec (safe) xdotool with recent input buffer
+                execFile("./safe_xdotool.sh", recentInput, function (error, stdout, stderr) {
                     // check for error
                     if(error) { console.log("ERROR:\n\n", error);  return };
+                    // log stdout
+                    console.log(stdout);
                 });
-
                 // clear recent input buffer
                 recentInput.length = 0;
             }
