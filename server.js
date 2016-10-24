@@ -135,14 +135,6 @@ function translateToXKeys(keyStroke) {
     }
 }
 
-// could use another xdotool process to watch which window we are in
-// and *not* fire keys if we are in the wrong one (class is "VirtualBox")
-
-// xdotool getactivewindow getwindowname # returns active window name
-// xdotool search --name Running 
-// will find a running VM
-// so we can avoid keypress infinite loops
-
 // create an http server
 var server = http.createServer(function(request, response) {
     // process HTTP request. Since we're writing just WebSockets server
