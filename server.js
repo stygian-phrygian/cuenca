@@ -10,6 +10,7 @@ var END_OF_TRANSMISSION_BLOCK = "\x17";
 // into X-Windows keys (for use in xdotool)
 var KEY_TO_XKEY = {
 
+    "Escape"     : "Escape",
     "ArrowUp"    : "Up",
     "ArrowDown"  : "Down",
     "ArrowLeft"  : "Left",
