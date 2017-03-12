@@ -10,6 +10,8 @@ var END_OF_TRANSMISSION_BLOCK = "\x17";
 // into X-Windows keys (for use in xdotool)
 var KEY_TO_XKEY = {
 
+    "PageDown"   : "Page_Down",   
+    "PageUp"     : "Page_Up",   
     "Escape"     : "Escape",
     "ArrowUp"    : "Up",
     "ArrowDown"  : "Down",
@@ -47,8 +49,6 @@ var KEY_TO_XKEY = {
     "!": "exclam",
     "#": "numbersign",
     "%": "percent",
-    "PageUp"     : "KP_Page_Up",
-    "PageDown"   : "KP_Page_Down",
     "Home"       : "KP_Home",
     "End"        : "KP_End",
     "Backspace"  : "BackSpace",
