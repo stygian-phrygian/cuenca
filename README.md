@@ -1,10 +1,12 @@
-#Cuenca
+Cuenca
+======
 
 Transmit voice recognized simulated keystrokes from a guest to host OS via browser WebSockets.
 
 *this is a hack*
 
-##Installation
+Installation
+------------
 
 *On the host:*
 
@@ -17,6 +19,7 @@ Transmit voice recognized simulated keystrokes from a guest to host OS via brows
 
     Download client.html to your guest OS.  
 
-##Usage
+Usage
+-----
 
 Open client.html in your guest OS ***then*** switch focus out of your VM into host OS applications.
