@@ -27,7 +27,7 @@ window.onkeydown = function (e) {
     // send the recent keyboard press (with modifier keys attached)
     else {
         var c = "";
-	// append alt, ctrl, & shift keys
+        // append alt, ctrl, & shift keys
         if(e.altKey) { c += "alt+"; }
         if(e.ctrlKey) { c += "ctrl+"; }
         if(e.shiftKey) {
@@ -35,11 +35,10 @@ window.onkeydown = function (e) {
             // (ie. we received a capital letter)
             if(e.keyCode < 65 && 90 > e.keyCode) { c += "shift+";}
         }
-	
         c += e.key;
-	// send the key over the WebSocket
+        // send the key over the WebSocket
         clientSocket.send(c);
-	// log it to the browser's console
+        // log it to the browser's console
         console.log(c);
     }
 }
@@ -58,7 +57,7 @@ var checkFinishedRecentInput = (function(){
     return function(callback, ms){
         clearTimeout (timer);
         timer = setTimeout(callback, ms);
-  };
+    };
 })();
 
 window.onkeyup = function() {

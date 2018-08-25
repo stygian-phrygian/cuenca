@@ -1,8 +1,8 @@
-var execFile        = require('child_process').execFile;	
-var http            = require('http');
+var execFile = require('child_process').execFile;
+var http = require('http');
 var WebSocketServer = require('websocket').server;
 
-var PORT                      = 1234
+var PORT = 1234
 var END_OF_TRANSMISSION_BLOCK = "\x17";
 
 // dictionary to translate 
@@ -10,13 +10,13 @@ var END_OF_TRANSMISSION_BLOCK = "\x17";
 // into X-Windows keys (for use in xdotool)
 var KEY_TO_XKEY = {
 
-    "PageDown"   : "Page_Down",   
-    "PageUp"     : "Page_Up",   
-    "Escape"     : "Escape",
-    "ArrowUp"    : "Up",
-    "ArrowDown"  : "Down",
-    "ArrowLeft"  : "Left",
-    "ArrowRight" : "Right",
+    "PageDown": "Page_Down",
+    "PageUp": "Page_Up",
+    "Escape": "Escape",
+    "ArrowUp": "Up",
+    "ArrowDown": "Down",
+    "ArrowLeft": "Left",
+    "ArrowRight": "Right",
     "Enter": "KP_Enter",
     '"': "quotedbl",
     "'": "apostrophe",
@@ -49,11 +49,11 @@ var KEY_TO_XKEY = {
     "!": "exclam",
     "#": "numbersign",
     "%": "percent",
-    "Home"       : "KP_Home",
-    "End"        : "KP_End",
-    "Backspace"  : "BackSpace",
-    "Delete"     : "Delete",
-    "NumLock"    : "Num_Lock",
+    "Home": "KP_Home",
+    "End": "KP_End",
+    "Backspace": "BackSpace",
+    "Delete": "Delete",
+    "NumLock": "Num_Lock",
     '0': '0',
     '1': '1',
     '2': '2',
@@ -131,17 +131,17 @@ var KEY_TO_XKEY = {
 }
 
 function hasModifierKeys(keyStroke) {
-    return  keyStroke.includes("alt")   ||
-            keyStroke.includes("ctrl")  ||
-            keyStroke.includes("shift") ||
-            keyStroke.includes("meta")  ||
-            keyStroke.includes("super");
+    return keyStroke.includes("alt") ||
+        keyStroke.includes("ctrl") ||
+        keyStroke.includes("shift") ||
+        keyStroke.includes("meta") ||
+        keyStroke.includes("super");
 }
+
 function translateToXKeys(keyStroke) {
-    if(hasModifierKeys(keyStroke)) {
+    if (hasModifierKeys(keyStroke)) {
         return keyStroke;
-    }
-    else {
+    } else {
         return KEY_TO_XKEY[keyStroke];
     }
 }
@@ -151,12 +151,19 @@ var server = http.createServer(function(request, response) {
     // process HTTP request. Since we're writing just WebSockets server
     // we don't have to implement anything.
 });
-server.listen(PORT,     function () { console.log("Listening on port:",PORT);  });
-server.on('connection', function () { console.log("Opened client connection..."); });
-// server.maxConnection = 1; // <--- should we limit connections?
+server.listen(PORT, function() {
+    console.log("Listening on port:", PORT);
+});
+
+// bind the server to a connection event
+server.on('connection', function() {
+    console.log("Opened client connection...");
+});
 
 // create the websocket server (from the prior created http server)
-webSocketServer = new WebSocketServer({httpServer: server});
+webSocketServer = new WebSocketServer({
+    httpServer: server
+});
 
 // register a callback when a new WebSocket connection is created
 webSocketServer.on('request', function(request) {
@@ -170,16 +177,19 @@ webSocketServer.on('request', function(request) {
         if (message.type === 'utf8') {
             // log what was received
             console.log("received:", message.utf8Data);
-        
+
             var receivedData = message.utf8Data;
 
             // if end of transmission block is received
             // exec xdotool with recent input
-            if(receivedData === END_OF_TRANSMISSION_BLOCK) {
+            if (receivedData === END_OF_TRANSMISSION_BLOCK) {
                 // exec (safe) xdotool with recent input buffer
-                execFile("./safe_xdotool.sh", recentInput, function (error, stdout, stderr) {
+                execFile("./safe_xdotool.sh", recentInput, function(error, stdout, stderr) {
                     // check for error
-                    if(error) { console.log("ERROR:\n\n", error);  return };
+                    if (error) {
+                        console.log("ERROR:\n\n", error);
+                        return
+                    };
                     // log stdout
                     console.log(stdout);
                 });
@@ -196,9 +206,7 @@ webSocketServer.on('request', function(request) {
     });
 
     // register a callback to prompt when a WebSocket connection is closed
-    connection.on('close', function(connection) { console.log("Connection closed"); });
+    connection.on('close', function(connection) {
+        console.log("Connection closed");
+    });
 });
-
-
-
-
